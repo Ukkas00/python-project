@@ -1,0 +1,63 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Returns</h3>
+  </div>
+
+  {% if form_error %}
+    <div class="alert alert-danger">{{ form_error }}</div>
+  {% endif %}
+  {% if form_success %}
+    <div class="alert alert-success">{{ form_success }}</div>
+  {% endif %}
+
+  {% if orders %}
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Order #</th>
+            <th>Book</th>
+            <th>Author</th>
+            <th>Qty</th>
+            <th>Borrower</th>
+            <th>Reference ID</th>
+            <th>Rented At</th>
+            <th>Due Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in orders %}
+          <tr>
+            <td>{{ o.id }}</td>
+            <td>{{ o.book.title }}</td>
+            <td>{{ o.book.author }}</td>
+            <td>{{ o.quantity }}</td>
+            <td>{{ o.borrower_name|default:"-" }}</td>
+            <td>{{ o.borrower_reference_id|default:"-" }}</td>
+            <td>{{ o.ordered_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ o.due_date|date:"Y-m-d" }}</td>
+            <td>
+              <form method="POST" action="/Returns" onsubmit="return confirm('Mark this order as returned?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="mark_returned" />
+                <input type="hidden" name="order_id" value="{{ o.id }}" />
+                <button class="btn btn-danger btn-sm" type="submit">Mark Returned</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info">No active rentals.</div>
+  {% endif %}
+</div>
+{% endblock %}
+
+

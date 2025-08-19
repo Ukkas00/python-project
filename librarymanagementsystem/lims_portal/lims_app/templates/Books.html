@@ -1,0 +1,105 @@
+{% extends "index.html" %}
+{% load static %}
+
+{% block main_content %}
+<div class="container mt-4">
+  <div class="row mb-3">
+    <div class="col-12">
+      <form class="d-flex" role="search" method="GET" action="/Books">
+        <input class="form-control me-2" type="search" placeholder="Search by title or author" aria-label="Search" name="q" value="{{ q }}"/>
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+        <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addBookModal">Add Book</button>
+      </form>
+      <div class="mt-2 text-muted">Total unique titles: <strong>{{ total_titles }}</strong></div>
+    </div>
+  </div>
+
+  <div class="row">
+    {% for book in books %}
+      <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">{{ book.title }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">by {{ book.author }}</h6>
+            <p class="card-text">
+              <strong>Category:</strong> {{ book.category }}<br/>
+              <strong>Available copies:</strong> {{ book.copies_available }}
+            </p>
+
+            <form method="POST" action="/Books" class="d-flex align-items-center">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="add_to_bag"/>
+              <input type="hidden" name="book_id" value="{{ book.id }}"/>
+              <input type="number" name="quantity" min="1" class="form-control" style="max-width: 90px;" value="1"/>
+              <button type="submit" class="btn btn-primary ms-2" {% if book.copies_available == 0 %}disabled{% endif %}>Add to Bag</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <p>No books found.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% if create_error %}
+<div class="container"><div class="alert alert-danger">{{ create_error }}</div></div>
+{% endif %}
+{% if create_success %}
+<div class="container"><div class="alert alert-success">{{ create_success }}</div></div>
+{% endif %}
+
+<!-- Add Book Modal -->
+<div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addBookModalLabel">Add New Book</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="/Books">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create_book"/>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" class="form-control" name="title" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Author</label>
+            <input type="text" class="form-control" name="author" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" name="category" required>
+              <option value="Fiction">Fiction</option>
+              <option value="Manga">Manga</option>
+              <option value="Literature">Literature</option>
+              <option value="Science">Science</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">ISBN</label>
+            <input type="text" class="form-control" name="isbn" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Copies Available</label>
+            <input type="number" class="form-control" name="copies_available" min="0" value="1" required />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Add Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+

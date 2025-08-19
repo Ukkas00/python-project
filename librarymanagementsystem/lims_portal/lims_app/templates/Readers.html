@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+{% extends "index.html"%}
+{% load static %}
+
+{%block main_content%}
+<!------<h1>i am in Readers page</h1>----->
+<div class="container-flex text-center justify-content-center align-items-center" style="padding-bottom: 20px; margin-top: 10px; vertical-align:middle ;">
+<div class="row justify-content-center align-middle" style="margin-top: 5px; height: 60px;">
+ <div class="col-md-4 text-light" style="background-color: rgb(101, 0, 0);">
+  <h4 style="margin-top: 15px;">Register now reader</h4>
+ </div>
+ <div class="col-md-8">
+   <h4 style="margin-top: 15px;">Search Readers</h4>
+ </div>
+</div>
+ <div class="row">
+  <div class="col-md-4">
+   <div class="container" style="overflow-y:auto;height: 600px;background-color: rgb(244, 177, 177);">
+    <form class="d-flex" action="readers/add" method="POST">
+     {%csrf_token%}
+     <table class="table" style="margin-top: 20px;">
+      <tr>
+       <td style="text-align: left;vertical-align: middle; padding-left: 15px;">Name :</td>
+       <td><input type="text" class="form-control" name="Reader_name"></td>
+      </tr>
+      <tr>
+       <td style="text-align: left;vertical-align: middle; padding-left: 15px;">Contact :</td>
+       <td><input type="text" class="form-control" name="Reader_Contact"></td>
+      </tr>
+      <tr>
+       <td style="text-align: left;vertical-align: middle; padding-left: 15px;">Reference ID: :</td>
+       <td><input type="text" class="form-control" name="Reference ID"></td>
+      </tr>
+      <tr>
+       <td style="text-align: left;vertical-align: middle; padding-left: 15px;">Address :</td>
+       <td><input type="text" class="form-control" name="Reader_Address"></td>
+      </tr>
+      
+      <td colspan="2">
+       <button type="submit" 
+               style="background-color:#4a0303; color:#ffffff; border:none; padding:8px 16px; border-radius:5px; cursor:pointer;"
+               onmouseover="this.style.backgroundColor='#6b0505';" 
+               onmouseout="this.style.backgroundColor='#4a0303';">
+         Save
+       </button>
+     </td>
+     </table>
+    </form>
+    <ul style="text-align: left; vertical-align: middle; padding-left: 15px; color:rgb(0, 0, 0);">
+     <li><small>One ID per student only – Each student must register with a unique ID. Multiple or duplicate registrations will not be accepted.</small></li>
+     <li><small>Provide accurate details  All information (Name, Address, Reference ID, etc.) must be correct and will be subject to verificatio</small></li>
+     <li><small>Duplicate readers will be deactivated. If a student is found with more than one account, the duplicate will be removed without notice.</small></li>
+     <li><small>Fill the form carefully. Ensure all mandatory fields are completed before submitting. Incomplete or false submissions may lead to rejection.</small></li>
+    </ul>
+   </div>
+  </div>
+  <div class="col-md-8">
+   <div class="row">
+    <nav class="navbar bg-bady-light">
+       <div class="container-fluid justify-content-center align-items-center">
+        <form class="d-flex" role="search" action="/Readers" method="POST">
+         {%csrf_token%}
+         <input 
+           class="form-control me-2" 
+           type="search" 
+           placeholder="Search" 
+           aria-label="Search" name="query" value="{{query}}"
+           style="border: 2px solid #4a0303; background-color: #fff;"
+         />
+         <button 
+           class="btn" 
+           type="submit" 
+           style="background-color: #4a0303; color: #fff; border: none; transition: 0.3s;"
+           onmouseover="this.style.backgroundColor='rgb(229,137,137)'; this.style.color='#4a0303';" 
+           onmouseout="this.style.backgroundColor='#4a0303'; this.style.color='#fff';"
+         >Search </button>
+        </form>
+       </div>
+    </nav>
+   </div>
+   <div class="row" style="margin-top: 20px;">
+    <p>
+      {% if readers %}
+        {{ readers|length }} reader{{ readers|length|pluralize }} subscribed.
+      {% else %}
+        No readers subscribed.
+      {% endif %}
+    </p>
+   </div>
+   <div class="row" style="margin-top: 20px;">
+    <div class="container" style="overflow-y:auto;height:400px;">
+     <table class="table table-hover">
+      <thead>
+       <tr>
+        <td>Readers ID</td>
+        <td>Name</td>
+        <td>Contact</td>
+        <td>Reference ID</td>
+        <td>Address</td>
+       </tr>
+      </thead>
+      <tbody>
+       {% for reader in readers %}
+       <tr>
+         <td>{{ reader.id }}</td>
+         <td>
+           {{ reader.reader_name }}
+           {% if reader.active %}
+             <span class="badge text-bg-success" style="margin-left:10px;">Active</span>
+             <form action="{% url 'deactivate_reader' reader.id %}" method="POST" style="display:inline; margin-left:8px;">
+               {% csrf_token %}
+               <button type="submit" class="btn btn-outline-secondary btn-sm">Deactivate</button>
+             </form>
+           {% else %}
+             <span class="badge text-bg-secondary" style="margin-left:10px;">Inactive</span>
+             <form action="{% url 'activate_reader' reader.id %}" method="POST" style="display:inline; margin-left:8px;">
+               {% csrf_token %}
+               <button type="submit" class="btn btn-outline-success btn-sm">Activate</button>
+             </form>
+           {% endif %}
+         </td>
+         <td>{{ reader.reader_contact }}</td>
+         <td>{{ reader.referance_id }}</td>
+         <td>{{ reader.reader_address }}</td>
+       </tr>
+       {% empty %}
+       <tr>
+         <td colspan="5" class="text-center">No readers found.</td>
+       </tr>
+       {% endfor %}
+      </tbody>
+
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+
+</div>
+{%endblock%}
